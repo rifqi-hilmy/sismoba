@@ -90,4 +90,5 @@ ENV PORT=8080
 EXPOSE ${PORT}
 
 # Replace ${PORT} in nginx.conf before start
-CMD envsubst '$PORT' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf && /usr/bin/supervisord
+CMD envsubst '$PORT' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf && supervisord -c /etc/supervisor/conf.d/supervisord.conf
+
