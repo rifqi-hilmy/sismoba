@@ -57,7 +57,7 @@ RUN php artisan config:cache && \
 # Stage 2: Production Image
 FROM php:8.2-fpm
 
-# Install system dependencies needed at runtime
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
@@ -73,7 +73,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-# Copy PHP extensions from build stage
+# Copy PHP extensions & configs from build stage
 COPY --from=build /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 
@@ -84,9 +84,9 @@ COPY --from=build /var/www/html /var/www/html
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Railway uses $PORT
-ENV PORT=8000
-
+# Railway uses $PORT (default 8080)
+ENV PORT=8080
 EXPOSE ${PORT}
 
-CMD ["/usr/bin/supervisord"]
+# Replace ${PORT} in nginx.conf before start
+CMD envsubst '$PORT' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf && /usr/bin/supervisord
