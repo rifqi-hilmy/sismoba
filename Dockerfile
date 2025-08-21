@@ -48,6 +48,5 @@ EXPOSE 8000
 
 RUN composer install
 RUN npm install
-RUN npm run build
 
-CMD npm run dev && php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan serve --host=0.0.0.0 --port=8000
