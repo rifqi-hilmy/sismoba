@@ -16,7 +16,7 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_KEY": "base64:F1J9Z0fYrWhI4L9/1K2+PF6vpEmIN/2pjlRVg8jwYD4=",
-        "APP_URL": "",
+        "APP_URL": "https://sismoba.vercel.app/",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
