@@ -1,7 +1,7 @@
 # Stage 1: Build PHP dependencies & assets
 FROM php:8.2-fpm AS build
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -39,16 +39,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy source code
 COPY . .
 
-# Install PHP dependencies (optimize for production)
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install Node dependencies & build assets
+# Build frontend assets
 RUN npm install && npm run build
 
-# Cache Laravel config/routes/views
+# Cache Laravel configs
 RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
@@ -74,22 +74,21 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-# Copy PHP extensions & configs from build stage
+# Copy PHP extensions
 COPY --from=build /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=build /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 
-# Copy built application
+# Copy built Laravel app
 COPY --from=build /var/www/html /var/www/html
 
-# Copy nginx & supervisor configs
-COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+# Copy configs
+COPY ./docker/nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Railway uses $PORT (default 8080)
-ENV PORT=8080
+# Railway provides $PORT
+ENV PORT=8000
+
 EXPOSE ${PORT}
 
-# Replace ${PORT} in nginx.conf before start
+# Generate nginx.conf from template & run supervisor
 CMD envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && supervisord -c /etc/supervisor/conf.d/supervisord.conf
-
-
